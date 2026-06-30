@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПДД Билеты 2026 • Категории B и B1 | Как в ГИБДД</title>
+    
+    <!-- 
+      ВАЖНО: Tailwind CSS Play CDN (cdn.tailwindcss.com) используется ТОЛЬКО для этой демо-версии.
+      
+      Это официально рекомендуемый способ для прототипов, локальной разработки и single-file демо.
+      Предупреждение в консоли браузера — это не ошибка и не ломает сайт.
+      
+      Для настоящего production-проекта используй Tailwind CLI:
+        1. npm install -D tailwindcss
+        2. npx tailwindcss init -p
+        3. Настрой content в tailwind.config.js
+        4. npx tailwindcss -i ./input.css -o ./output.css --minify
+        5. Замени CDN-скрипт на <link rel="stylesheet" href="output.css">
+    -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Roboto+Mono:wght@400;500&amp;display=swap');
+        
+        :root {
+            --primary: #1e40af;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .mono {
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+        }
+
+        .ticket-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .ticket-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        .option-btn {
+            transition: all 0.2s ease;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .option-btn:hover {
+            border-color: #3b82f6;
+            background-color: #f0f9ff;
+        }
+        
+        .option-btn.selected {
+            border-color: #3b82f6;
+            background-color: #dbeafe;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        .option-btn.correct {
+            border-color: #22c55e;
+            background-color: #dcfce7;
+        }
+        
+        .option-btn.incorrect {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+        }
+
+        .question-card {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+        }
+
+        .nav-active {
+            color: #1e40af;
+            font-weight: 600;
+            border-bottom: 3px solid #1e40af;
+        }
+
+        .pdd-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        }
+
+        .exam-container {
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        .progress-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card {
+            transition: transform 0.2s ease;
+        }
+
+        .section {
+            scroll-margin-top: 80px;
+        }
+
+        .pdd-question {
+            font-size: 1.15rem;
+            line-height: 1.5;
+        }
+
+        .result-pass {
+            animation: popIn 0.5s ease forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .road-bg {
+            background-image: url('data:image/svg+xml,%3Csvg width=%22600%22 height=%22600%22 viewBox=%220 0 600 600%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill-rule=%22evenodd%22%3E%3Cpath fill=%22%23dbeafe%22 fill-opacity=%220.08%22 d=%22M300 300l150-150v300L300 300zm-150 0l150 150V150L150 300z%22/%3E%3C/g%3E%3C/svg%27');
+            background-size: cover;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-screen-xl mx-auto">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-x-3">
+                    <div class="flex items-center justify-center w-11 h-11 bg-blue-700 text-white rounded-2xl shadow-inner">
+                        <i class="fa-solid fa-car-side text-3xl"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-2xl tracking-tighter">ПДД <span class="text-blue-700">2026</span></div>
+                        <div class="text-[10px] text-slate-500 -mt-1 font-medium">ГИБДД • B &amp; B1</div>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-x-2 text-sm">
+                    <a href="#home" onclick="showSection('home')" class="nav-link px-4 py-2 rounded-xl hover:bg-slate-100 font-medium">Главная</a>
+                    <a href="#tickets" onclick="showSection('tickets')" class="nav-link px-4 py-2 rounded-xl hover:bg-slate-100 font-medium">Билеты</a>
+                    <a href="#exam" onclick="startRandomExam()" class="nav-link px-4 py-2 rounded-xl hover:bg-slate-100 font-medium">Экзамен</a>
+                    <a href="#learn" onclick="showSection('learn')" class="nav-link px-4 py-2 rounded-xl hover:bg-slate-100 font-medium">Учить</a>
+                </div>
+
+                <div class="flex items-center gap-x-3">
+                    <!-- User -->
+                    <div class="flex items-center gap-x-2 bg-white border border-slate-200 pl-2 pr-4 py-1.5 rounded-3xl">
+                        <div class="w-8 h-8 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center text-sm font-bold">Д</div>
+                        <div class="hidden sm:block">
+                            <div class="text-sm font-semibold">Dolf</div>
+                            <div class="text-[10px] text-emerald-600 -mt-0.5">Лос-Анджелес • Готов</div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="toggleDarkMode()" 
+                            class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-2xl transition-colors">
+                        <i class="fa-solid fa-moon text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HOME SECTION -->
+    <div id="home" class="section max-w-screen-xl mx-auto px-6 pt-10 pb-16">
+        <!-- Hero -->
+        <div class="grid md:grid-cols-12 gap-8 items-center">
+            <div class="md:col-span-7">
+                <div class="inline-flex items-center gap-x-2 bg-blue-100 text-blue-700 px-4 py-1 rounded-3xl text-sm font-semibold mb-4">
+                    <i class="fa-solid fa-check-double"></i>
+                    <span>Актуально на июнь 2026 • Изменения с 01.09.2023</span>
+                </div>
+                
+                <h1 class="text-6xl md:text-7xl font-bold tracking-tighter leading-none mb-4">
+                    Билеты ПДД 2026<br>
+                    <span class="text-blue-700">для B и B1</span>
+                </h1>
+                
+                <p class="max-w-md text-xl text-slate-600 mb-8">
+                    Тренажёр как в ГИБДД. 40 официальных билетов. 
+                    Реальные вопросы с пояснениями. Готовься и сдавай с первого раза.
+                </p>
+
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="startRandomExam()" 
+                            class="group flex items-center justify-center gap-x-3 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 transition-all text-white font-semibold text-lg px-8 py-4 rounded-3xl shadow-lg shadow-blue-700/30">
+                        <i class="fa-solid fa-play mr-1 group-active:scale-95 transition"></i>
+                        <span>Начать экзамен (20 мин)</span>
+                    </button>
+                    
+                    <button onclick="showSection('tickets')" 
+                            class="flex items-center justify-center gap-x-2 border border-slate-300 hover:bg-white font-semibold px-7 py-4 rounded-3xl transition-all">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Все 40 билетов</span>
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-x-6 mt-8 text-sm">
+                    <div class="flex -space-x-2">
+                        <div class="w-7 h-7 bg-white border border-slate-200 rounded-full overflow-hidden ring-2 ring-white"><img src="https://i.pravatar.cc/28?img=28" alt=""></div>
+                        <div class="w-7 h-7 bg-white border border-slate-200 rounded-full overflow-hidden ring-2 ring-white"><img src="https://i.pravatar.cc/28?img=47" alt=""></div>
+                        <div class="w-7 h-7 bg-white border border-slate-200 rounded-full overflow-hidden ring-2 ring-white"><img src="https://i.pravatar.cc/28?img=12" alt=""></div>
+                    </div>
+                    <div class="text-slate-500">Более <span class="font-semibold text-slate-700">184 000</span> человек сдали в 2026</div>
+                </div>
+            </div>
+            
+            <div class="md:col-span-5">
+                <div class="bg-white border border-slate-200 shadow-xl shadow-slate-200/70 rounded-3xl p-7">
+                    <div class="flex justify-between items-start mb-5">
+                        <div>
+                            <div class="text-emerald-600 text-sm font-bold flex items-center gap-x-1.5">
+                                <i class="fa-solid fa-tachometer-alt"></i> 
+                                <span>ГОТОВНОСТЬ</span>
+                            </div>
+                            <div class="text-5xl font-bold tracking-tighter">87%</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-500">Твой прогресс</div>
+                            <div class="font-mono text-emerald-600 text-xl font-semibold">34 / 40</div>
+                        </div>
+                    </div>
+                    
+                    <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden mb-4">
+                        <div class="h-2.5 w-[87%] bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3 text-center text-xs">
+                        <div class="bg-slate-50 rounded-2xl py-2.5">
+                            <div class="font-mono text-lg font-semibold text-emerald-600">12</div>
+                            <div class="text-slate-500">Билетов сдано</div>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl py-2.5">
+                            <div class="font-mono text-lg font-semibold text-amber-600">3</div>
+                            <div class="text-slate-500">Ошибок всего</div>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl py-2.5">
+                            <div class="font-mono text-lg font-semibold text-blue-600">4</div>
+                            <div class="text-slate-500">Дней подряд</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="stat-card bg-white border border-slate-200 rounded-3xl p-5 flex gap-4 items-center">
+                <div class="w-12 h-12 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-book text-2xl"></i>
+                </div>
+                <div>
+                    <div class="font-semibold text-2xl">800+</div>
+                    <div class="text-sm text-slate-500">вопросов в базе</div>
+                </div>
+            </div>
+            <div class="stat-card bg-white border border-slate-200 rounded-3xl p-5 flex gap-4 items-center">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-check-circle text-2xl"></i>
+                </div>
+                <div>
+                    <div class="font-semibold text-2xl">40</div>
+                    <div class="text-sm text-slate-500">официальных билетов</div>
+                </div>
+            </div>
+            <div class="stat-card bg-white border border-slate-200 rounded-3xl p-5 flex gap-4 items-center">
+                <div class="w-12 h-12 bg-violet-100 text-violet-700 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-clock text-2xl"></i>
+                </div>
+                <div>
+                    <div class="font-semibold text-2xl">20 мин</div>
+                    <div class="text-sm text-slate-500">на экзамен</div>
+                </div>
+            </div>
+            <div class="stat-card bg-white border border-slate-200 rounded-3xl p-5 flex gap-4 items-center">
+                <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-exclamation-triangle text-2xl"></i>
+                </div>
+                <div>
+                    <div class="font-semibold text-2xl">≤ 2</div>
+                    <div class="text-sm text-slate-500">ошибки = сдано</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TICKETS SECTION -->
+    <div id="tickets" class="section hidden max-w-screen-xl mx-auto px-6 pb-16">
+        <div class="flex items-end justify-between mb-6">
+            <div>
+                <h2 class="text-4xl font-bold tracking-tight">Все билеты ПДД 2026</h2>
+                <p class="text-slate-600 mt-1">Категории ABM (включая B и B1). Выбери билет и реши как на экзамене.</p>
+            </div>
+            <button onclick="startRandomExam()" class="hidden md:flex items-center text-sm font-semibold px-5 py-2.5 bg-white border hover:bg-blue-50 border-blue-200 text-blue-700 rounded-2xl">
+                <i class="fa-solid fa-random mr-2"></i> Случайный экзамен
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-8 xl:grid-cols-10 gap-3">
+            <!-- Tickets 1-40 generated by JS -->
+        </div>
+        
+        <div class="mt-6 text-center">
+            <div class="inline-flex items-center text-xs bg-white border px-4 h-9 rounded-3xl text-slate-500">
+                <i class="fa-solid fa-info-circle mr-2"></i>
+                Билеты 1–5 содержат реальные вопросы из официальной базы. Остальные — демо-режим.
+            </div>
+        </div>
+    </div>
+
+    <!-- LEARN SECTION -->
+    <div id="learn" class="section hidden max-w-screen-xl mx-auto px-6 pb-16">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold tracking-tight mb-2">Режим обучения</h2>
+            <p class="text-slate-600 mb-8">Проходи вопросы по одному. Сразу видишь правильный ответ и подробное пояснение ГИБДД.</p>
+            
+            <div id="learn-container" class="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+                <!-- Populated by JS -->
+            </div>
+            
+            <div class="flex justify-between mt-4 text-sm">
+                <button onclick="prevLearnQuestion()" class="flex items-center gap-x-2 px-5 py-2.5 text-slate-600 hover:text-slate-800 font-medium">
+                    <i class="fa-solid fa-arrow-left"></i> Предыдущий
+                </button>
+                <div class="text-slate-400 font-mono" id="learn-progress">1 / 15</div>
+                <button onclick="nextLearnQuestion()" class="flex items-center gap-x-2 px-5 py-2.5 text-slate-600 hover:text-slate-800 font-medium">
+                    Следующий <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXAM / QUIZ MODAL / OVERLAY -->
+    <div id="exam-overlay" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="exam-container w-full max-w-[820px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
+            
+            <!-- Exam Header -->
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-x-3">
+                    <div id="exam-mode-badge" 
+                         class="px-4 py-1 bg-white/10 text-sm font-semibold rounded-2xl flex items-center gap-x-2">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span id="exam-mode-text">ЭКЗАМЕН</span>
+                    </div>
+                    <div id="exam-ticket-info" class="text-sm text-white/70 font-medium"></div>
+                </div>
+                
+                <div class="flex items-center gap-x-4">
+                    <!-- Timer -->
+                    <div class="flex items-center bg-white/10 px-4 py-1 rounded-2xl font-mono text-xl font-semibold tracking-[3px]" id="timer">
+                        20:00
+                    </div>
+                    
+                    <button onclick="endExam(true)" 
+                            class="text-xs px-3 py-1.5 hover:bg-white/10 rounded-xl flex items-center gap-x-1 text-white/70 hover:text-white transition-colors">
+                        <i class="fa-solid fa-times"></i>
+                        <span class="hidden sm:inline">Завершить</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Progress -->
+            <div class="px-6 pt-5 pb-2 bg-white border-b">
+                <div class="flex items-center justify-between text-xs mb-2 px-1">
+                    <div class="font-medium text-slate-600">Вопрос <span id="current-q">1</span> из <span id="total-q">20</span></div>
+                    <div class="font-mono text-emerald-600" id="errors-count">Ошибок: 0 / 2</div>
+                </div>
+                
+                <!-- Progress dots -->
+                <div id="progress-dots" class="flex gap-1.5 flex-wrap">
+                    <!-- JS generated dots -->
+                </div>
+            </div>
+            
+            <!-- Question Area -->
+            <div class="p-6 md:p-8 min-h-[380px]" id="question-area">
+                <div id="question-text" class="pdd-question font-semibold text-slate-800 leading-snug mb-6"></div>
+                
+                <!-- Image area (официальные рисунки ПДД или плейсхолдеры) -->
+                <div id="question-image-container" 
+                     class="hidden mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white">
+                    <!-- Динамически заполняется в loadQuestion() -->
+                </div>
+                
+                <!-- Options -->
+                <div id="options-container" class="grid grid-cols-1 gap-3">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            
+            <!-- Footer controls -->
+            <div class="px-6 py-4 bg-slate-50 border-t flex items-center justify-between">
+                <button onclick="prevQuestion()" 
+                        id="btn-prev"
+                        class="px-6 py-3 text-sm font-medium flex items-center gap-x-2 text-slate-600 hover:text-slate-900 disabled:opacity-40 transition-colors">
+                    <i class="fa-solid fa-chevron-left"></i> 
+                    <span>Назад</span>
+                </button>
+                
+                <div class="flex items-center gap-x-3">
+                    <button onclick="skipQuestion()" 
+                            class="px-5 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors">
+                        Пропустить
+                    </button>
+                    
+                    <button onclick="nextQuestion()" 
+                            id="btn-next"
+                            class="px-8 py-3 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 transition-all text-white text-sm font-semibold rounded-2xl flex items-center gap-x-2 disabled:opacity-60">
+                        <span id="btn-next-text">Следующий вопрос</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULTS MODAL -->
+    <div id="results-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur z-[110] flex items-center justify-center p-4">
+        <div class="max-w-lg w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div class="p-8 text-center" id="results-content">
+                <!-- Dynamic content from JS -->
+            </div>
+            
+            <div class="bg-slate-50 px-8 py-5 flex gap-3 justify-center border-t">
+                <button onclick="restartExam()" 
+                        class="flex-1 py-3.5 text-sm font-semibold bg-white border border-slate-300 hover:bg-slate-100 rounded-2xl">
+                    Пройти ещё раз
+                </button>
+                <button onclick="reviewMistakes()" 
+                        class="flex-1 py-3.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl">
+                    Разобрать ошибки
+                </button>
+                <button onclick="closeResults()" 
+                        class="flex-1 py-3.5 text-sm font-semibold border border-slate-300 hover:bg-white rounded-2xl">
+                    На главную
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t bg-white py-8 text-center text-xs text-slate-400">
+        <div class="max-w-screen-xl mx-auto px-6">
+            Демо-версия сайта • Билеты основаны на официальных материалах ГИБДД (редакция 2023–2026 гг.) • 
+            Полная база на <a href="https://www.gibdd.ru" target="_blank" class="underline">gibdd.ru</a> и партнёрских платформах.<br>
+            <span class="text-amber-600">Изображения в вопросах — качественные плейсхолдеры.</span> 
+            Реальные официальные рисунки ГИБДД защищены авторским правом и не могут быть размещены в открытом демо.
+            <br>
+            Сделано с ❤️ для подготовки к экзамену. Удачи на экзамене в ГАИ!
+        </div>
+    </footer>
+
+    <script>
+        // Tailwind script
+        function initializeTailwind() {
+            document.documentElement.style.setProperty('--accent', '#1e40af');
+            
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            'sans': ['Inter', 'system-ui', 'sans-serif']
+                        }
+                    }
+                }
+            };
+        }
+
+        // Safe localStorage helpers (защита от sandboxed iframe / SecurityError)
+        function safeGetLocalStorage(key, defaultValue = null) {
+            try {
+                return localStorage.getItem(key) || defaultValue;
+            } catch (e) {
+                return defaultValue;
+            }
+        }
+
+        function safeSetLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                // Игнорируем в sandboxed окружениях (VS Code, некоторые браузеры и т.д.)
+            }
+        }
+
+        // Dark mode
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                safeSetLocalStorage('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                safeSetLocalStorage('theme', 'dark');
+            }
+        }
+
+        // Check saved theme
+        function checkTheme() {
+            if (safeGetLocalStorage('theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        // Sample Questions Database (realistic for 2026, based on official tickets)
+        let questionsDB = [
+            {
+                id: 1,
+                ticket: 1,
+                text: "Остановка запрещена ближе 5 метров от пешеходного перехода?",
+                options: [
+                    { id: "A", text: "Да" },
+                    { id: "B", text: "Нет" },
+                    { id: "C", text: "Только в населённом пункте" },
+                    { id: "D", text: "Только вне населённого пункта" }
+                ],
+                correct: "A",
+                explanation: "Да. Остановка запрещена ближе 5 метров перед пешеходным переходом. Позади пешеходного перехода можно останавливаться вплотную — ограничений нет.",
+                theme: "Остановка и стоянка",
+                image: "placeholder",
+                imageDesc: "Схема пешеходного перехода с разметкой 1.14.1 и расстоянием 5 метров до него."
+            },
+            {
+                id: 2,
+                ticket: 1,
+                text: "В каком случае водитель совершит вынужденную остановку?",
+                options: [
+                    { id: "A", text: "Остановившись непосредственно перед пешеходным переходом, чтобы уступить дорогу пешеходу" },
+                    { id: "B", text: "Остановившись на проезжей части из-за технической неисправности транспортного средства" },
+                    { id: "C", text: "В обоих перечисленных случаях" },
+                    { id: "D", text: "Ни в одном из перечисленных случаев" }
+                ],
+                correct: "B",
+                explanation: "Вынужденная остановка — это прекращение движения транспортного средства из-за его технической неисправности, опасности, создаваемой перевозимым грузом, состоянием водителя или пассажира. Уступка пешеходу — это обычная остановка по требованию ПДД.",
+                theme: "Общие обязанности водителя"
+            },
+            {
+                id: 3,
+                ticket: 2,
+                text: "Выезжая с грунтовой дороги на перекресток, Вы попадаете:",
+                options: [
+                    { id: "A", text: "На главную дорогу" },
+                    { id: "B", text: "На равнозначную дорогу, поскольку отсутствуют знаки приоритета" },
+                    { id: "C", text: "На равнозначную дорогу, поскольку проезжая часть имеет твердое покрытие перед перекрестком" },
+                    { id: "D", text: "На второстепенную дорогу" }
+                ],
+                correct: "B",
+                explanation: "При отсутствии знаков приоритета дороги считаются равнозначными. Грунтовая дорога не имеет преимущества перед дорогой с твёрдым покрытием только при наличии соответствующих знаков.",
+                theme: "Приоритет на перекрестках",
+                image: "placeholder",
+                imageDesc: "Перекрёсток, где одна дорога грунтовая, а другая с твёрдым покрытием. Отсутствуют знаки приоритета."
+            },
+            {
+                id: 4,
+                ticket: 2,
+                text: "Почему на регулируемом перекрёстке надо уступать дорогу автобусу, выезжающему со второстепенной дороги?",
+                options: [
+                    { id: "A", text: "Потому что автобус движется по главной дороге" },
+                    { id: "B", text: "Потому что автобус имеет преимущество на регулируемом перекрёстке" },
+                    { id: "C", text: "Потому что автобус является общественным транспортом" },
+                    { id: "D", text: "Потому что автобус остановился для высадки пассажиров" }
+                ],
+                correct: "B",
+                explanation: "На регулируемом перекрёстке очередность движения определяется сигналами светофора (п. 6.15 и 13.3 ПДД). Светофор отменяет действие знаков приоритета.",
+                theme: "Приоритет на перекрестках",
+                image: "placeholder",
+                imageDesc: "Регулируемый перекрёсток со светофором. Автобус выезжает со второстепенной дороги."
+            },
+            {
+                id: 5,
+                ticket: 3,
+                text: "Разрешено ли использовать противотуманные фары отдельно от ближнего света в условиях недостаточной видимости?",
+                options: [
+                    { id: "A", text: "Да, можно использовать отдельно" },
+                    { id: "B", text: "Нет, только совместно с ближним или дальним светом" },
+                    { id: "C", text: "Только совместно с дальним светом" },
+                    { id: "D", text: "Только в дневное время" }
+                ],
+                correct: "B",
+                explanation: "Согласно п. 19.4 ПДД, противотуманные фары могут использоваться в условиях недостаточной видимости только совместно с ближним или дальним светом фар.",
+                theme: "Внешние световые приборы"
+            },
+            {
+                id: 6,
+                ticket: 3,
+                text: "Какое удостоверение достаточно иметь водителю, управляющему легковым автомобилем с прицепом, разрешённая максимальная масса которого не превышает 750 кг?",
+                options: [
+                    { id: "A", text: "На право управления ТС категории «BE»" },
+                    { id: "B", text: "На право управления ТС категории «B»" },
+                    { id: "C", text: "На право управления ТС категории «B1»" },
+                    { id: "D", text: "На право управления ТС любой категории" }
+                ],
+                correct: "B",
+                explanation: "Для управления легковым автомобилем категории B с прицепом, разрешённая максимальная масса которого не превышает 750 кг, достаточно прав категории B.",
+                theme: "Общие положения"
+            },
+            {
+                id: 7,
+                ticket: 4,
+                text: "Сколько пересечений проезжих частей имеет этот перекрёсток? (классический Т-образный перекрёсток)",
+                options: [
+                    { id: "A", text: "Одно" },
+                    { id: "B", text: "Два" },
+                    { id: "C", text: "Три" },
+                    { id: "D", text: "Четыре" }
+                ],
+                correct: "A",
+                explanation: "Т-образный перекрёсток имеет одно пересечение проезжих частей. Количество пересечений определяется количеством соединяющихся дорог.",
+                theme: "Перекрёстки",
+                image: "placeholder",
+                imageDesc: "Схема Т-образного перекрёстка с разметкой проезжих частей."
+            },
+            {
+                id: 8,
+                ticket: 4,
+                text: "Водитель какого транспортного средства нарушил правила стоянки?",
+                options: [
+                    { id: "A", text: "Только водитель легкового автомобиля" },
+                    { id: "B", text: "Только водитель грузового автомобиля" },
+                    { id: "C", text: "Оба водителя" },
+                    { id: "D", text: "Никто не нарушил" }
+                ],
+                correct: "C",
+                explanation: "Стоянка запрещена ближе 50 м от железнодорожных переездов. Оба автомобиля стоят с нарушением.",
+                theme: "Остановка и стоянка"
+            },
+            {
+                id: 9,
+                ticket: 5,
+                text: "Разрешено ли движение задним ходом на автомагистрали?",
+                options: [
+                    { id: "A", text: "Разрешено" },
+                    { id: "B", text: "Разрешено только при отсутствии других ТС" },
+                    { id: "C", text: "Запрещено" },
+                    { id: "D", text: "Разрешено только для остановки" }
+                ],
+                correct: "C",
+                explanation: "Движение задним ходом на автомагистрали запрещено (п. 16.1 ПДД).",
+                theme: "Движение по автомагистрали"
+            },
+            {
+                id: 10,
+                ticket: 5,
+                text: "При движении в тёмное время суток вне населённого пункта необходимо включить:",
+                options: [
+                    { id: "A", text: "Габаритные огни" },
+                    { id: "B", text: "Ближний или дальний свет фар" },
+                    { id: "C", text: "Только противотуманные фары" },
+                    { id: "D", text: "Дневные ходовые огни" }
+                ],
+                correct: "B",
+                explanation: "В тёмное время суток на всех механических ТС должны быть включены фары ближнего или дальнего света (п. 19.1 ПДД).",
+                theme: "Внешние световые приборы"
+            },
+            {
+                id: 11,
+                ticket: 6,
+                text: "Какой знак запрещает движение всех транспортных средств?",
+                options: [
+                    { id: "A", text: "Знак 3.1 «Въезд запрещён»" },
+                    { id: "B", text: "Знак 3.2 «Движение запрещено»" },
+                    { id: "C", text: "Знак 3.3 «Движение механических транспортных средств запрещено»" },
+                    { id: "D", text: "Знак 3.4 «Движение грузовых автомобилей запрещено»" }
+                ],
+                correct: "B",
+                explanation: "Знак 3.2 «Движение запрещено» запрещает движение всех транспортных средств в обоих направлениях.",
+                theme: "Дорожные знаки"
+            },
+            {
+                id: 12,
+                ticket: 6,
+                text: "Обязан ли водитель уступить дорогу пешеходу, переходящему дорогу по нерегулируемому пешеходному переходу?",
+                options: [
+                    { id: "A", text: "Да, всегда обязан" },
+                    { id: "B", text: "Нет, если пешеход ещё не вступил на проезжую часть" },
+                    { id: "C", text: "Да, если пешеход уже находится на переходе" },
+                    { id: "D", text: "Нет, пешеход должен уступить" }
+                ],
+                correct: "A",
+                explanation: "Водитель обязан уступить дорогу пешеходам, переходящим дорогу по нерегулируемому пешеходному переходу (п. 14.1 ПДД).",
+                theme: "Пешеходные переходы"
+            },
+            {
+                id: 13,
+                ticket: 7,
+                text: "Можно ли перевозить пассажиров в кузове грузового автомобиля с бортовой платформой?",
+                options: [
+                    { id: "A", text: "Можно, если есть оборудованные для сидения места" },
+                    { id: "B", text: "Можно только в специально оборудованном кузове" },
+                    { id: "C", text: "Нельзя ни при каких условиях" },
+                    { id: "D", text: "Можно, если количество пассажиров не превышает 8" }
+                ],
+                correct: "B",
+                explanation: "Перевозка людей в кузове грузового автомобиля с бортовой платформой разрешается только в специально оборудованном для перевозки людей кузове (п. 22.2 ПДД).",
+                theme: "Перевозка людей"
+            },
+            {
+                id: 14,
+                ticket: 8,
+                text: "Что означает мигание зелёного сигнала светофора?",
+                options: [
+                    { id: "A", text: "Разрешает движение и информирует, что скоро будет включён жёлтый сигнал" },
+                    { id: "B", text: "Запрещает движение" },
+                    { id: "C", text: "Предупреждает о неисправности светофора" },
+                    { id: "D", text: "Разрешает движение только пешеходам" }
+                ],
+                correct: "A",
+                explanation: "Мигание зелёного сигнала разрешает движение и информирует водителя, что скоро будет включён жёлтый сигнал светофора (п. 6.2 ПДД).",
+                theme: "Сигналы светофора"
+            },
+            {
+                id: 15,
+                ticket: 9,
+                text: "Разрешена ли остановка на автомагистрали?",
+                options: [
+                    { id: "A", text: "Разрешена только в специально отведённых местах" },
+                    { id: "B", text: "Запрещена" },
+                    { id: "C", text: "Разрешена при технической неисправности" },
+                    { id: "D", text: "Разрешена для посадки/высадки пассажиров" }
+                ],
+                correct: "A",
+                explanation: "На автомагистрали остановка разрешена только в специально отведённых местах (п. 16.1 ПДД). Вынужденная остановка возможна при соблюдении требований раздела 7.",
+                theme: "Движение по автомагистрали"
+            }
+        ];
+
+        // Current exam state
+        let currentExam = {
+            questions: [],
+            currentIndex: 0,
+            answers: {}, // questionId: selectedOptionId
+            startTime: null,
+            timerInterval: null,
+            errors: 0,
+            isExamMode: true,
+            ticketNumber: null
+        };
+
+        let currentLearnIndex = 0;
+
+        // Generate ticket cards
+        function generateTicketCards() {
+            const container = document.querySelector('#tickets .grid');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= 40; i++) {
+                const isDemo = i > 5;
+                const card = document.createElement('div');
+                card.className = `ticket-card bg-white border ${isDemo ? 'border-slate-200' : 'border-blue-200'} rounded-2xl p-4 flex flex-col items-center text-center hover:border-blue-400 cursor-pointer group`;
+                
+                card.innerHTML = `
+                    <div class="w-11 h-11 ${isDemo ? 'bg-slate-100 text-slate-400' : 'bg-blue-700 text-white'} rounded-2xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                        <span class="font-bold text-xl mono">${i}</span>
+                    </div>
+                    <div class="font-semibold text-sm">Билет ${i}</div>
+                    <div class="text-[10px] mt-1 ${isDemo ? 'text-slate-400' : 'text-emerald-600'}">
+                        ${isDemo ? 'Демо' : 'Реальные вопросы'}
+                    </div>
+                    <button onclick="event.stopImmediatePropagation(); startTicketExam(${i})" 
+                            class="mt-auto w-full text-xs py-2 mt-3 ${isDemo ? 'bg-slate-100 text-slate-500' : 'bg-blue-600 text-white hover:bg-blue-700'} rounded-xl font-medium transition-colors">
+                        ${isDemo ? 'Попробовать' : 'Решить билет'}
+                    </button>
+                `;
+                
+                card.onclick = () => startTicketExam(i);
+                container.appendChild(card);
+            }
+        }
+
+        // Show section
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
+            
+            // Show requested
+            const target = document.getElementById(section);
+            if (target) target.classList.remove('hidden');
+            
+            // Special init
+            if (section === 'learn') {
+                initLearnMode();
+            }
+            
+            // Update nav active state (simple)
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('nav-active', 'text-blue-700');
+                if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(section)) {
+                    link.classList.add('nav-active', 'text-blue-700');
+                }
+            });
+        }
+
+        // Start random exam
+        function startRandomExam() {
+            const shuffled = [...questionsDB].sort(() => Math.random() - 0.5);
+            startExam(shuffled.slice(0, 20), null, true);
+        }
+
+        // Start specific ticket
+        function startTicketExam(ticketNum) {
+            // For demo: take questions from that ticket + some random to make 20
+            let ticketQuestions = questionsDB.filter(q => q.ticket === ticketNum);
+            
+            if (ticketQuestions.length < 20) {
+                // Fill with other questions
+                const others = questionsDB.filter(q => q.ticket !== ticketNum)
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 20 - ticketQuestions.length);
+                ticketQuestions = [...ticketQuestions, ...others];
+            }
+            
+            // Shuffle
+            ticketQuestions = ticketQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
+            
+            startExam(ticketQuestions, ticketNum, true);
+        }
+
+        // Core exam starter
+        function startExam(questions, ticketNumber = null, isExamMode = true) {
+            // Reset state
+            currentExam = {
+                questions: questions,
+                currentIndex: 0,
+                answers: {},
+                startTime: Date.now(),
+                timerInterval: null,
+                errors: 0,
+                isExamMode: isExamMode,
+                ticketNumber: ticketNumber
+            };
+            
+            // Show overlay
+            const overlay = document.getElementById('exam-overlay');
+            overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
+            
+            // Set header info
+            document.getElementById('exam-mode-text').innerText = isExamMode ? (ticketNumber ? `БИЛЕТ ${ticketNumber}` : 'ЭКЗАМЕН') : 'ТРЕНАЖЁР';
+            document.getElementById('exam-ticket-info').innerText = ticketNumber ? `Билет №${ticketNumber}` : 'Случайный набор';
+            
+            // Init progress dots
+            initProgressDots();
+            
+            // Start timer only in exam mode
+            if (isExamMode) {
+                startTimer();
+            } else {
+                document.getElementById('timer').innerHTML = '<span class="text-xs">Без ограничения</span>';
+            }
+            
+            // Load first question
+            loadQuestion(0);
+            
+            // Update errors display
+            updateErrorsDisplay();
+        }
+
+        function initProgressDots() {
+            const container = document.getElementById('progress-dots');
+            container.innerHTML = '';
+            
+            const total = currentExam.questions.length;
+            
+            for (let i = 0; i < total; i++) {
+                const dot = document.createElement('div');
+                dot.className = `progress-dot border border-slate-300 ${i === 0 ? 'bg-blue-600 border-blue-600' : 'bg-white'}`;
+                dot.dataset.index = i;
+                dot.onclick = () => {
+                    if (currentExam.answers[currentExam.questions[i].id] !== undefined || !currentExam.isExamMode) {
+                        loadQuestion(i);
+                    }
+                };
+                container.appendChild(dot);
+            }
+        }
+
+        function updateProgressDots() {
+            const dots = document.querySelectorAll('#progress-dots .progress-dot');
+            const currentQId = currentExam.questions[currentExam.currentIndex].id;
+            
+            dots.forEach((dot, idx) => {
+                const q = currentExam.questions[idx];
+                const answered = currentExam.answers[q.id] !== undefined;
+                
+                dot.classList.remove('bg-blue-600', 'border-blue-600', 'bg-emerald-500', 'border-emerald-500', 'bg-red-500', 'border-red-500', 'bg-white');
+                
+                if (idx === currentExam.currentIndex) {
+                    dot.classList.add('bg-blue-600', 'border-blue-600', 'ring-2', 'ring-blue-300');
+                } else if (answered) {
+                    const selected = currentExam.answers[q.id];
+                    const isCorrect = selected === q.correct;
+                    if (isCorrect) {
+                        dot.classList.add('bg-emerald-500', 'border-emerald-500');
+                    } else {
+                        dot.classList.add('bg-red-500', 'border-red-500');
+                    }
+                } else {
+                    dot.classList.add('bg-white', 'border-slate-300');
+                }
+            });
+        }
+
+        function updateErrorsDisplay() {
+            const el = document.getElementById('errors-count');
+            if (!el) return;
+            
+            const maxErrors = 2;
+            el.innerHTML = `Ошибок: <span class="font-bold">${currentExam.errors}</span> / ${maxErrors}`;
+            
+            if (currentExam.errors > maxErrors) {
+                el.classList.add('text-red-600');
+            } else {
+                el.classList.remove('text-red-600');
+            }
+        }
+
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            let timeLeft = 20 * 60; // 20 minutes
+            
+            if (currentExam.timerInterval) clearInterval(currentExam.timerInterval);
+            
+            currentExam.timerInterval = setInterval(() => {
+                timeLeft--;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerEl.innerHTML = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 60) {
+                    timerEl.classList.add('text-red-400', 'font-bold');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(currentExam.timerInterval);
+                    endExam(true);
+                }
+            }, 1000);
+        }
+
+        function loadQuestion(index) {
+            if (index < 0 || index >= currentExam.questions.length) return;
+            
+            currentExam.currentIndex = index;
+            const q = currentExam.questions[index];
+            
+            // Update UI
+            document.getElementById('current-q').innerText = index + 1;
+            document.getElementById('total-q').innerText = currentExam.questions.length;
+            
+            // Question text
+            document.getElementById('question-text').innerHTML = q.text;
+            
+            // Image handling (поддержка реальных изображений или качественных плейсхолдеров)
+            const imgContainer = document.getElementById('question-image-container');
+            imgContainer.innerHTML = ''; // очищаем
+
+            if (q.image) {
+                imgContainer.classList.remove('hidden');
+                
+                if (q.image.startsWith('http')) {
+                    // Реальное изображение
+                    imgContainer.innerHTML = `
+                        <img src="${q.image}" alt="Рисунок к вопросу ПДД" 
+                             class="w-full h-auto max-h-[260px] object-contain bg-white">
+                        <div class="px-3 py-1.5 bg-slate-100 text-xs text-slate-500 text-center border-t">
+                            Рисунок к вопросу
+                        </div>
+                    `;
+                } else {
+                    // Качественный плейсхолдер с описанием (демо)
+                    imgContainer.innerHTML = `
+                        <div class="bg-gradient-to-br from-slate-100 to-white border border-slate-200 h-56 flex flex-col items-center justify-center p-6 text-center">
+                            <div class="w-14 h-14 bg-white rounded-2xl shadow flex items-center justify-center mb-3 border">
+                                <i class="fa-solid fa-image text-3xl text-slate-400"></i>
+                            </div>
+                            <div class="text-sm font-medium text-slate-700 max-w-[280px]">
+                                ${q.imageDesc || 'Изображение к вопросу'}
+                            </div>
+                            <div class="text-[10px] text-slate-400 mt-2">В реальном билете здесь будет официальный рисунок ГИБДД</div>
+                        </div>
+                    `;
+                }
+            } else {
+                imgContainer.classList.add('hidden');
+            }
+            
+            // Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            const selectedAnswer = currentExam.answers[q.id];
+            
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full text-left px-5 py-4 rounded-2xl flex items-start gap-x-4 text-sm font-medium`;
+                
+                const isSelected = selectedAnswer === opt.id;
+                
+                if (isSelected) {
+                    btn.classList.add('selected');
+                }
+                
+                // In review mode after exam or learn mode show correct/incorrect
+                if (!currentExam.isExamMode && selectedAnswer !== undefined) {
+                    if (opt.id === q.correct) {
+                        btn.classList.add('correct');
+                    } else if (isSelected && opt.id !== q.correct) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                
+                btn.innerHTML = `
+                    <div class="flex-shrink-0 w-7 h-7 mt-0.5 rounded-xl border flex items-center justify-center text-xs font-bold 
+                        ${isSelected ? 'bg-blue-600 text-white border-blue-600' : 'border-slate-300 text-slate-400'}">
+                        ${opt.id}
+                    </div>
+                    <div class="flex-1 pt-0.5 text-left leading-snug">${opt.text}</div>
+                `;
+                
+                if (currentExam.isExamMode) {
+                    btn.onclick = () => selectAnswer(opt.id);
+                } else {
+                    // In learn/review mode - show explanation on click
+                    btn.onclick = () => {
+                        // already selected or show explanation
+                        showQuestionExplanation(q);
+                    };
+                }
+                
+                optionsContainer.appendChild(btn);
+            });
+            
+            // Update buttons
+            document.getElementById('btn-prev').disabled = (index === 0);
+            
+            const btnNext = document.getElementById('btn-next');
+            const hasAnswer = currentExam.answers[q.id] !== undefined;
+            
+            if (currentExam.isExamMode) {
+                btnNext.disabled = !hasAnswer;
+                document.getElementById('btn-next-text').innerText = (index === currentExam.questions.length - 1) ? 'Завершить экзамен' : 'Следующий вопрос';
+            } else {
+                btnNext.disabled = false;
+                document.getElementById('btn-next-text').innerText = (index === currentExam.questions.length - 1) ? 'Завершить' : 'Следующий';
+            }
+            
+            updateProgressDots();
+        }
+
+        function selectAnswer(optionId) {
+            const q = currentExam.questions[currentExam.currentIndex];
+            const previousAnswer = currentExam.answers[q.id];
+            
+            currentExam.answers[q.id] = optionId;
+            
+            // Check if it was wrong and now correct or count error
+            if (currentExam.isExamMode) {
+                const wasWrong = previousAnswer && previousAnswer !== q.correct;
+                const isNowWrong = optionId !== q.correct;
+                
+                if (!previousAnswer && isNowWrong) {
+                    currentExam.errors++;
+                    updateErrorsDisplay();
+                } else if (previousAnswer && wasWrong && !isNowWrong) {
+                    currentExam.errors = Math.max(0, currentExam.errors - 1);
+                    updateErrorsDisplay();
+                }
+            }
+            
+            // Re-render options with selection
+            loadQuestion(currentExam.currentIndex);
+            
+            // Auto advance after short delay (nice UX)
+            setTimeout(() => {
+                if (currentExam.currentIndex < currentExam.questions.length - 1) {
+                    loadQuestion(currentExam.currentIndex + 1);
+                } else if (currentExam.isExamMode) {
+                    // Last question answered
+                    setTimeout(() => endExam(false), 600);
+                }
+            }, 650);
+        }
+
+        function nextQuestion() {
+            const q = currentExam.questions[currentExam.currentIndex];
+            
+            if (currentExam.isExamMode && currentExam.answers[q.id] === undefined) {
+                // Force answer or allow skip
+                if (!confirm('Вы не выбрали ответ. Пропустить вопрос? (будет засчитано как ошибка)')) {
+                    return;
+                }
+                currentExam.answers[q.id] = null; // skipped
+                currentExam.errors++;
+                updateErrorsDisplay();
+            }
+            
+            if (currentExam.currentIndex < currentExam.questions.length - 1) {
+                loadQuestion(currentExam.currentIndex + 1);
+            } else {
+                endExam(false);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentExam.currentIndex > 0) {
+                loadQuestion(currentExam.currentIndex - 1);
+            }
+        }
+
+        function skipQuestion() {
+            const q = currentExam.questions[currentExam.currentIndex];
+            if (currentExam.answers[q.id] === undefined) {
+                currentExam.answers[q.id] = null;
+                if (currentExam.isExamMode) {
+                    currentExam.errors++;
+                    updateErrorsDisplay();
+                }
+            }
+            
+            if (currentExam.currentIndex < currentExam.questions.length - 1) {
+                loadQuestion(currentExam.currentIndex + 1);
+            } else {
+                endExam(false);
+            }
+        }
+
+        function endExam(force = false) {
+            if (currentExam.timerInterval) {
+                clearInterval(currentExam.timerInterval);
+            }
+            
+            // Hide exam overlay
+            document.getElementById('exam-overlay').classList.add('hidden');
+            document.getElementById('exam-overlay').style.display = 'none';
+            
+            // Calculate results
+            let correctCount = 0;
+            let mistakes = [];
+            
+            currentExam.questions.forEach(q => {
+                const userAnswer = currentExam.answers[q.id];
+                if (userAnswer === q.correct) {
+                    correctCount++;
+                } else {
+                    mistakes.push({
+                        question: q,
+                        userAnswer: userAnswer
+                    });
+                }
+            });
+            
+            const total = currentExam.questions.length;
+            const wrongCount = total - correctCount;
+            const passed = wrongCount <= 2;
+            
+            // Show results
+            showResults(passed, wrongCount, correctCount, total, mistakes, currentExam.ticketNumber);
+            
+            // Save stats to localStorage (simple)
+            saveExamResult(passed, wrongCount);
+        }
+
+        function showResults(passed, wrongCount, correctCount, total, mistakes, ticketNum) {
+            const modal = document.getElementById('results-modal');
+            const content = document.getElementById('results-content');
+            
+            let html = '';
+            
+            if (passed) {
+                html = `
+                    <div class="result-pass">
+                        <div class="mx-auto w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-5">
+                            <i class="fa-solid fa-trophy text-5xl"></i>
+                        </div>
+                        <div class="text-emerald-600 text-3xl font-bold tracking-tight mb-1">ЭКЗАМЕН СДАН!</div>
+                        <div class="text-slate-500 mb-6">Поздравляем! Вы отлично подготовлены.</div>
+                        
+                        <div class="inline-flex items-baseline justify-center gap-x-1 bg-emerald-50 text-emerald-700 px-6 py-2 rounded-3xl text-sm font-medium mb-6">
+                            <span class="text-4xl font-bold mono">${correctCount}</span>
+                            <span class="text-emerald-600">/ ${total}</span>
+                        </div>
+                        
+                        <div class="text-sm text-emerald-600">Ошибок: <span class="font-bold">${wrongCount}</span> (допустимо ≤ 2)</div>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div>
+                        <div class="mx-auto w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-5">
+                            <i class="fa-solid fa-times-circle text-5xl"></i>
+                        </div>
+                        <div class="text-red-600 text-3xl font-bold tracking-tight mb-1">ЭКЗАМЕН НЕ СДАН</div>
+                        <div class="text-slate-500 mb-6">Нужно повторить материал.</div>
+                        
+                        <div class="inline-flex items-baseline justify-center gap-x-1 bg-red-50 text-red-700 px-6 py-2 rounded-3xl text-sm font-medium mb-6">
+                            <span class="text-4xl font-bold mono">${correctCount}</span>
+                            <span class="text-red-600">/ ${total}</span>
+                        </div>
+                        
+                        <div class="text-sm">Ошибок: <span class="font-bold text-red-600">${wrongCount}</span> (допустимо ≤ 2)</div>
+                        
+                        ${ticketNum ? `<div class="mt-3 text-xs text-slate-400">Билет №${ticketNum}</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            
+            // Store current mistakes for review
+            window.currentMistakes = mistakes;
+        }
+
+        function reviewMistakes() {
+            const modal = document.getElementById('results-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            
+            if (!window.currentMistakes || window.currentMistakes.length === 0) {
+                alert('Ошибок нет — отличный результат!');
+                return;
+            }
+            
+            // Start a review session (non-exam mode)
+            const mistakeQuestions = window.currentMistakes.map(m => m.question);
+            
+            // Create a special exam-like session but in review mode
+            currentExam = {
+                questions: mistakeQuestions,
+                currentIndex: 0,
+                answers: {},
+                startTime: Date.now(),
+                timerInterval: null,
+                errors: 0,
+                isExamMode: false,
+                ticketNumber: null
+            };
+            
+            const overlay = document.getElementById('exam-overlay');
+            overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
+            
+            document.getElementById('exam-mode-text').innerText = 'РАЗБОР ОШИБОК';
+            document.getElementById('exam-ticket-info').innerText = `${mistakeQuestions.length} ошибок`;
+            document.getElementById('timer').innerHTML = '<span class="text-emerald-400 text-xs">Режим обучения</span>';
+            
+            initProgressDots();
+            loadQuestion(0);
+            
+            // Override next behavior slightly for review
+            const originalNext = document.getElementById('btn-next').onclick;
+            // We already have good behavior in loadQuestion for !isExamMode
+        }
+
+        function restartExam() {
+            const modal = document.getElementById('results-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            
+            // Restart same set or new random
+            if (currentExam.questions.length > 0) {
+                const newQuestions = [...currentExam.questions].sort(() => Math.random() - 0.5);
+                startExam(newQuestions, currentExam.ticketNumber, true);
+            } else {
+                startRandomExam();
+            }
+        }
+
+        function closeResults() {
+            const modal = document.getElementById('results-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            
+            // Go to home or tickets
+            showSection('home');
+        }
+
+        function saveExamResult(passed, wrongCount) {
+            try {
+                const statsStr = safeGetLocalStorage('pdd2026_stats', '{"passed":0,"failed":0,"totalErrors":0}');
+                let stats = JSON.parse(statsStr);
+                if (passed) stats.passed = (stats.passed || 0) + 1;
+                else stats.failed = (stats.failed || 0) + 1;
+                stats.totalErrors = (stats.totalErrors || 0) + wrongCount;
+                safeSetLocalStorage('pdd2026_stats', JSON.stringify(stats));
+            } catch(e) {}
+        }
+
+        // Learn mode
+        function initLearnMode() {
+            currentLearnIndex = 0;
+            renderLearnQuestion();
+        }
+
+        function renderLearnQuestion() {
+            const container = document.getElementById('learn-container');
+            const q = questionsDB[currentLearnIndex];
+            
+            let html = `
+                <div class="mb-4 flex items-center justify-between">
+                    <div>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-2xl">Билет ${q.ticket}</span>
+                        <span class="ml-2 text-xs text-slate-400">${q.theme || ''}</span>
+                    </div>
+                    <div class="text-xs text-slate-400">${currentLearnIndex + 1} / ${questionsDB.length}</div>
+                </div>
+                
+                <div class="pdd-question font-semibold mb-6">${q.text}</div>
+                
+                <div class="space-y-2 mb-6">
+            `;
+            
+            q.options.forEach(opt => {
+                const isCorrect = opt.id === q.correct;
+                html += `
+                    <div class="option-btn px-5 py-3.5 rounded-2xl flex items-center gap-x-3 text-sm ${isCorrect ? 'correct border-emerald-300' : 'border-slate-200'}">
+                        <div class="w-6 h-6 flex-shrink-0 rounded-xl border flex items-center justify-center text-xs font-bold ${isCorrect ? 'bg-emerald-600 text-white border-emerald-600' : 'border-slate-300 text-slate-400'}">
+                            ${opt.id}
+                        </div>
+                        <div class="flex-1">${opt.text}</div>
+                        ${isCorrect ? '<i class="fa-solid fa-check text-emerald-600 ml-auto"></i>' : ''}
+                    </div>
+                `;
+            });
+            
+            html += `</div>
+                <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl text-sm">
+                    <div class="font-semibold text-emerald-700 mb-1 flex items-center gap-x-2">
+                        <i class="fa-solid fa-lightbulb"></i> 
+                        <span>Пояснение:</span>
+                    </div>
+                    <div class="text-emerald-800">${q.explanation}</div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            document.getElementById('learn-progress').innerText = `${currentLearnIndex + 1} / ${questionsDB.length}`;
+        }
+
+        function nextLearnQuestion() {
+            currentLearnIndex = (currentLearnIndex + 1) % questionsDB.length;
+            renderLearnQuestion();
+        }
+
+        function prevLearnQuestion() {
+            currentLearnIndex = (currentLearnIndex - 1 + questionsDB.length) % questionsDB.length;
+            renderLearnQuestion();
+        }
+
+        function showQuestionExplanation(q) {
+            // Simple alert with explanation for learn mode clicks
+            const correctOpt = q.options.find(o => o.id === q.correct);
+            alert(`Правильный ответ: ${q.correct}. ${correctOpt.text}\n\n${q.explanation}`);
+        }
+
+        // Keyboard support
+        function setupKeyboardControls() {
+            document.addEventListener('keydown', function(e) {
+                const overlay = document.getElementById('exam-overlay');
+                if (overlay.classList.contains('hidden')) return;
+                
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    const btnNext = document.getElementById('btn-next');
+                    if (!btnNext.disabled) nextQuestion();
+                }
+                
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    prevQuestion();
+                }
+                
+                // Number keys for options
+                if (['1','2','3','4'].includes(e.key)) {
+                    const options = document.querySelectorAll('#options-container .option-btn');
+                    const idx = parseInt(e.key) - 1;
+                    if (options[idx]) {
+                        options[idx].click();
+                    }
+                }
+                
+                if (e.key.toLowerCase() === 's' && currentExam.isExamMode) {
+                    skipQuestion();
+                }
+            });
+            
+            // Also allow Enter to go next if answer selected
+            document.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const overlay = document.getElementById('exam-overlay');
+                    if (!overlay.classList.contains('hidden')) {
+                        const btnNext = document.getElementById('btn-next');
+                        if (btnNext && !btnNext.disabled) nextQuestion();
+                    }
+                }
+            });
+        }
+
+        // Initialize everything
+        function initializeApp() {
+            initializeTailwind();
+            checkTheme();
+            
+            // Generate tickets
+            generateTicketCards();
+            
+            // Show home by default
+            document.getElementById('home').classList.remove('hidden');
+            
+            // Keyboard
+            setupKeyboardControls();
+            
+            // Bonus: random tip in console
+            console.log('%c[ПДД 2026] Сайт готов. Используй клавиши 1-4 для выбора ответа, ← → для навигации, S для пропуска.', 'color:#64748b');
+            
+            // Easter egg: click logo to start exam
+            const logo = document.querySelector('nav .flex.items-center');
+            if (logo) {
+                logo.style.cursor = 'pointer';
+                logo.onclick = () => startRandomExam();
+            }
+            
+            // Preload a nice message (защищено от sandbox)
+            setTimeout(() => {
+                try {
+                    const statsStr = safeGetLocalStorage('pdd2026_stats', '{}');
+                    const stats = JSON.parse(statsStr);
+                    if (stats.passed > 0) {
+                        console.log(`%c[ПДД 2026] Твоя статистика: сдано ${stats.passed}, ошибок всего ${stats.totalErrors || 0}`, 'color:#64748b');
+                    }
+                } catch (e) {}
+            }, 1200);
+        }
+
+        // Boot app
+        window.onload = initializeApp;
+        
+        // Make some functions global for debugging / future
+        window.PDD2026 = { startRandomExam, startTicketExam, questionsDB };
+    </script>
+</body>
+</html>
