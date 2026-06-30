@@ -811,13 +811,18 @@
                     <div class="text-[10px] mt-1 ${isDemo ? 'text-slate-400' : 'text-emerald-600'}">
                         ${isDemo ? 'Демо' : 'Реальные вопросы'}
                     </div>
-                    <button onclick="event.stopImmediatePropagation(); startTicketExam(${i})" 
+                    <button onclick="event.stopPropagation(); startTicketExam(${i})" 
                             class="mt-auto w-full text-xs py-2 mt-3 ${isDemo ? 'bg-slate-100 text-slate-500' : 'bg-blue-600 text-white hover:bg-blue-700'} rounded-xl font-medium transition-colors">
                         ${isDemo ? 'Попробовать' : 'Решить билет'}
                     </button>
                 `;
                 
-                card.onclick = () => startTicketExam(i);
+                // Клик по карточке (но не по кнопке внутри)
+                card.addEventListener('click', function(e) {
+                    if (!e.target.closest('button')) {
+                        startTicketExam(i);
+                    }
+                });
                 container.appendChild(card);
             }
         }
