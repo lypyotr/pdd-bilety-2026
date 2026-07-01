@@ -129,7 +129,7 @@
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-screen-xl mx-auto">
             <div class="px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-x-3">
+                <div id="brand-logo" class="flex items-center gap-x-3">
                     <div class="flex items-center justify-center w-11 h-11 bg-blue-700 text-white rounded-2xl shadow-inner">
                         <i class="fa-solid fa-car-side text-3xl"></i>
                     </div>
@@ -1475,11 +1475,11 @@
             // Bonus: random tip in console
             console.log('%c[ПДД 2026] Сайт готов. Используй клавиши 1-4 для выбора ответа, ← → для навигации, S для пропуска.', 'color:#64748b');
             
-            // Easter egg: click logo to start exam
-            const logo = document.querySelector('nav .flex.items-center');
+            // Клик по логотипу возвращает на главную (только сам логотип, не вся навигация)
+            const logo = document.getElementById('brand-logo');
             if (logo) {
                 logo.style.cursor = 'pointer';
-                logo.onclick = () => startRandomExam();
+                logo.onclick = () => showSection('home');
             }
             
             // Preload a nice message (защищено от sandbox)
